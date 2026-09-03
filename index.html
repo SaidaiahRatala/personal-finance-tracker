@@ -1,0 +1,3302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Personal Finance Tracker</title>
+
+    <!-- AWS Cognito SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.12/dist/amazon-cognito-identity.min.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        /* ========================= */
+        /* LIGHT MODE */
+        /* ========================= */
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            color: #222;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+
+        .container {
+            width: 90%;
+            max-width: 950px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: background 0.3s, color 0.3s;
+        }
+
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+
+        h2 {
+            margin-top: 35px;
+        }
+
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            background: white;
+            color: #222;
+        }
+
+
+        button {
+            background: #222;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-right: 8px;
+            font-size: 15px;
+        }
+
+
+        button:hover {
+            background: #444;
+        }
+
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+
+        .hidden {
+            display: none;
+        }
+
+
+        /* ========================= */
+        /* DARK MODE BUTTON */
+        /* ========================= */
+
+        .theme-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+
+        .theme-btn {
+            margin: 0;
+            background: #444;
+        }
+
+
+        .theme-btn:hover {
+            background: #666;
+        }
+
+
+        /* ========================= */
+        /* AUTHENTICATION */
+        /* ========================= */
+
+        .auth-container {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eef2f5;
+            padding: 12px 15px;
+            border-radius: 6px;
+        }
+
+
+        /* ========================= */
+        /* FINANCIAL SUMMARY */
+        /* ========================= */
+
+        .summary {
+            background: #f1f3f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+
+        .summary p {
+            font-size: 18px;
+            margin: 12px 0;
+        }
+
+
+        /* ========================= */
+        /* MONTHLY BUDGET */
+        /* ========================= */
+
+        .budget-box {
+            background: #fff8e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #f0d58a;
+        }
+
+
+        .budget-box p {
+            font-size: 18px;
+            margin: 12px 0;
+        }
+
+
+        /* ========================= */
+        /* SMART INSIGHTS */
+        /* ========================= */
+
+        .insights {
+            background: #eef7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+
+        .insights p {
+            font-size: 17px;
+            margin: 12px 0;
+        }
+
+
+        /* ========================= */
+        /* TRANSACTIONS */
+        /* ========================= */
+
+        .transaction {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+            background: white;
+        }
+
+
+        .transaction p {
+            margin: 8px 0;
+        }
+
+
+        .transaction-buttons {
+            margin-top: 10px;
+        }
+
+
+        .delete-btn {
+            background: #d32f2f;
+        }
+
+
+        .delete-btn:hover {
+            background: #b71c1c;
+        }
+
+
+        .search-box {
+            margin-top: 15px;
+        }
+
+
+        .loading {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+
+        /* ========================= */
+        /* BUDGET WARNING */
+        /* ========================= */
+
+        .budget-warning {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+
+        .safe-budget {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+
+        .warning-budget {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+
+        .danger-budget {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+
+        /* ========================= */
+        /* DARK MODE */
+        /* ========================= */
+
+        body.dark-mode {
+            background: #121212;
+            color: #f5f5f5;
+        }
+
+
+        body.dark-mode .container {
+            background: #1e1e1e;
+            color: #f5f5f5;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.05);
+        }
+
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #2a2a2a;
+            color: white;
+            border-color: #555;
+        }
+
+
+        body.dark-mode input::placeholder {
+            color: #aaa;
+        }
+
+
+        body.dark-mode .auth-container {
+            border-color: #444;
+        }
+
+
+        body.dark-mode .user-header {
+            background: #2a2a2a;
+        }
+
+
+        body.dark-mode .summary {
+            background: #2a2a2a;
+        }
+
+
+        body.dark-mode .budget-box {
+            background: #302b20;
+            border-color: #665c3a;
+        }
+
+
+        body.dark-mode .insights {
+            background: #1d2a33;
+        }
+
+
+        body.dark-mode .transaction {
+            background: #252525;
+            border-color: #444;
+        }
+
+
+        body.dark-mode .theme-btn {
+            background: #f5f5f5;
+            color: #222;
+        }
+
+
+        body.dark-mode .theme-btn:hover {
+            background: #ddd;
+        }
+
+
+        /* ========================= */
+        /* MOBILE RESPONSIVE */
+        /* ========================= */
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: 95%;
+                margin: 20px auto;
+                padding: 20px;
+            }
+
+
+            .user-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+
+            .user-header button {
+                margin-top: 0;
+            }
+
+
+            h1 {
+                font-size: 24px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- ========================= -->
+    <!-- DARK MODE BUTTON -->
+    <!-- ========================= -->
+
+    <div class="theme-container">
+
+        <button
+            id="themeToggle"
+            class="theme-btn"
+            onclick="toggleDarkMode()"
+        >
+            🌙 Dark Mode
+        </button>
+
+    </div>
+
+
+    <h1>💰 Smart Personal Finance Tracker</h1>
+
+
+    <!-- ========================= -->
+    <!-- AUTHENTICATION -->
+    <!-- ========================= -->
+
+    <div id="authSection" class="auth-container">
+
+
+        <!-- LOGIN -->
+
+        <div id="loginForm">
+
+            <h2>Sign In</h2>
+
+
+            <label>Email</label>
+
+            <input
+                type="email"
+                id="authEmail"
+                placeholder="Enter your email"
+            >
+
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                id="authPassword"
+                placeholder="Enter your password"
+            >
+
+
+            <button onclick="signIn()">
+                Sign In
+            </button>
+
+        </div>
+
+
+        <!-- LOGGED IN USER -->
+
+        <div id="userInfo" class="user-header hidden">
+
+            <span>
+
+                Logged in as:
+
+                <strong id="userEmailText"></strong>
+
+            </span>
+
+
+            <button
+                onclick="signOut()"
+                style="margin-top:0;"
+            >
+                Sign Out
+            </button>
+
+        </div>
+
+
+        <div
+            id="authMessage"
+            class="message"
+        ></div>
+
+
+    </div>
+
+
+
+    <!-- ========================= -->
+    <!-- MAIN APPLICATION -->
+    <!-- ========================= -->
+
+    <div id="appSection" class="hidden">
+
+
+        <!-- ========================= -->
+        <!-- ADD TRANSACTION -->
+        <!-- ========================= -->
+
+        <h2>➕ Add Transaction</h2>
+
+
+        <label>Transaction Type</label>
+
+
+        <select id="transactionType">
+
+            <option value="Income">
+                💰 Income
+            </option>
+
+            <option value="Expense">
+                💸 Expense
+            </option>
+
+        </select>
+
+
+        <label>Amount</label>
+
+
+        <input
+            type="number"
+            id="amount"
+            placeholder="Enter amount"
+            min="0"
+            step="0.01"
+        >
+
+
+        <label>Category</label>
+
+
+        <input
+            type="text"
+            id="category"
+            placeholder="Example: Salary, Food, Travel"
+        >
+
+
+        <label>Description</label>
+
+
+        <input
+            type="text"
+            id="description"
+            placeholder="Enter description"
+        >
+
+
+        <button onclick="addTransaction()">
+            Add Transaction
+        </button>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+
+        <!-- ========================= -->
+        <!-- FINANCIAL SUMMARY -->
+        <!-- ========================= -->
+
+        <h2>📊 Financial Summary</h2>
+
+
+        <div class="summary">
+
+
+            <p>
+
+                💰 <strong>Total Income:</strong>
+
+                ₹<span id="totalIncome">0.00</span>
+
+            </p>
+
+
+            <p>
+
+                💸 <strong>Total Expenses:</strong>
+
+                ₹<span id="totalExpenses">0.00</span>
+
+            </p>
+
+
+            <p>
+
+                💵 <strong>Money Saved:</strong>
+
+                ₹<span id="moneySaved">0.00</span>
+
+            </p>
+
+
+            <p>
+
+                📈 <strong>Savings Rate:</strong>
+
+                <span id="savingsRate">0.00</span>%
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- MONTHLY BUDGET -->
+        <!-- ========================= -->
+
+        <h2>🎯 Monthly Budget</h2>
+
+
+        <div class="budget-box">
+
+
+            <label>Set Monthly Budget</label>
+
+
+            <input
+                type="number"
+                id="monthlyBudgetInput"
+                placeholder="Example: 10000"
+                min="0"
+                step="0.01"
+            >
+
+
+            <button onclick="saveBudget()">
+                Save Budget
+            </button>
+
+
+            <p>
+
+                🎯 <strong>Monthly Budget:</strong>
+
+                ₹<span id="monthlyBudget">0.00</span>
+
+            </p>
+
+
+            <p>
+
+                💸 <strong>Budget Used:</strong>
+
+                ₹<span id="budgetUsed">0.00</span>
+
+            </p>
+
+
+            <p>
+
+                💵 <strong>Remaining Budget:</strong>
+
+                ₹<span id="remainingBudget">0.00</span>
+
+            </p>
+
+
+            <p>
+
+                📊 <strong>Budget Used Percentage:</strong>
+
+                <span id="budgetPercentage">0.00</span>%
+
+            </p>
+
+
+            <div
+                id="budgetWarning"
+                class="budget-warning"
+            ></div>
+
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- SMART INSIGHTS -->
+        <!-- ========================= -->
+
+        <h2>🧠 Smart Financial Insights</h2>
+
+
+        <div class="insights">
+
+            <p id="savingInsight"></p>
+
+            <p id="spendingInsight"></p>
+
+            <p id="savingHabitInsight"></p>
+
+            <p id="highestCategoryInsight"></p>
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- DOWNLOAD REPORT -->
+        <!-- ========================= -->
+
+        <h2>📥 Financial Report</h2>
+
+
+        <div class="summary">
+
+
+            <p>
+
+                Download your complete financial summary
+                and transaction history.
+
+            </p>
+
+
+            <button onclick="downloadFinancialReport()">
+
+                📥 Download Financial Report
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- TRANSACTIONS -->
+        <!-- ========================= -->
+
+        <h2>📜 Transactions</h2>
+
+
+        <div class="search-box">
+
+
+            <input
+                type="text"
+                id="search"
+                placeholder="Search by category, description or type"
+                oninput="displayTransactions()"
+            >
+
+
+        </div>
+
+
+        <button onclick="loadTransactions()">
+
+            🔄 Refresh
+
+        </button>
+
+
+        <div
+            id="loading"
+            class="loading"
+        ></div>
+
+
+        <div id="transactionList"></div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* ========================= */
+/* AWS COGNITO CONFIG */
+/* ========================= */
+
+
+const COGNITO_CONFIG = {
+
+    UserPoolId: "us-east-1_xWY9Ghb9g",
+
+    ClientId: "5v5j70nh844h9kiglcdu848e5v"
+
+};
+
+
+const userPool =
+    new AmazonCognitoIdentity.CognitoUserPool(
+        COGNITO_CONFIG
+    );
+
+
+
+/* ========================= */
+/* API URL */
+/* ========================= */
+
+
+const API_URL =
+    "https://2k1lhnc120.execute-api.us-east-1.amazonaws.com";
+
+
+let transactions = [];
+
+
+
+/* ========================= */
+/* DARK MODE */
+/* ========================= */
+
+
+function toggleDarkMode() {
+
+
+    document.body.classList.toggle(
+        "dark-mode"
+    );
+
+
+    const isDarkMode =
+        document.body.classList.contains(
+            "dark-mode"
+        );
+
+
+    localStorage.setItem(
+        "darkMode",
+        isDarkMode
+    );
+
+
+    updateThemeButton();
+
+}
+
+
+
+/* ========================= */
+/* UPDATE THEME BUTTON */
+/* ========================= */
+
+
+function updateThemeButton() {
+
+
+    const themeButton =
+        document.getElementById(
+            "themeToggle"
+        );
+
+
+    if (
+        document.body.classList.contains(
+            "dark-mode"
+        )
+    ) {
+
+
+        themeButton.textContent =
+            "☀️ Light Mode";
+
+
+    }
+
+    else {
+
+
+        themeButton.textContent =
+            "🌙 Dark Mode";
+
+
+    }
+
+}
+
+
+
+/* ========================= */
+/* LOAD DARK MODE */
+/* ========================= */
+
+
+function loadDarkMode() {
+
+
+    const darkMode =
+        localStorage.getItem(
+            "darkMode"
+        );
+
+
+    if (darkMode === "true") {
+
+
+        document.body.classList.add(
+            "dark-mode"
+        );
+
+
+    }
+
+
+    updateThemeButton();
+
+}
+
+
+
+/* ========================= */
+/* GET AUTH TOKEN */
+/* ========================= */
+
+
+function getAuthToken() {
+
+
+    return new Promise((resolve) => {
+
+
+        const cognitoUser =
+            userPool.getCurrentUser();
+
+
+        if (!cognitoUser) {
+
+
+            resolve(null);
+
+            return;
+
+        }
+
+
+        cognitoUser.getSession(
+            (err, session) => {
+
+
+                if (
+
+                    err ||
+
+                    !session ||
+
+                    !session.isValid()
+
+                ) {
+
+
+                    resolve(null);
+
+                    return;
+
+                }
+
+
+                resolve(
+
+                    session
+                        .getIdToken()
+                        .getJwtToken()
+
+                );
+
+
+            }
+
+        );
+
+
+    });
+
+
+}
+
+
+
+/* ========================= */
+/* SIGN IN */
+/* ========================= */
+
+
+function signIn() {
+
+
+    const email =
+        document
+            .getElementById("authEmail")
+            .value
+            .trim();
+
+
+    const password =
+        document
+            .getElementById("authPassword")
+            .value;
+
+
+    const messageEl =
+        document
+            .getElementById("authMessage");
+
+
+    if (!email || !password) {
+
+
+        messageEl.textContent =
+            "Please enter email and password.";
+
+
+        messageEl.style.color =
+            "red";
+
+
+        return;
+
+    }
+
+
+    const authenticationDetails =
+        new AmazonCognitoIdentity.AuthenticationDetails({
+
+            Username: email,
+
+            Password: password
+
+        });
+
+
+    const cognitoUser =
+        new AmazonCognitoIdentity.CognitoUser({
+
+            Username: email,
+
+            Pool: userPool
+
+        });
+
+
+    cognitoUser.authenticateUser(
+
+        authenticationDetails,
+
+        {
+
+
+            onSuccess: function() {
+
+
+                checkAuthStatus();
+
+
+            },
+
+
+            onFailure: function(err) {
+
+
+                messageEl.textContent =
+
+                    err.message ||
+
+                    JSON.stringify(err);
+
+
+                messageEl.style.color =
+                    "red";
+
+
+            }
+
+
+        }
+
+    );
+
+
+}
+
+
+
+/* ========================= */
+/* SIGN OUT */
+/* ========================= */
+
+
+function signOut() {
+
+
+    const cognitoUser =
+        userPool.getCurrentUser();
+
+
+    if (cognitoUser) {
+
+
+        cognitoUser.signOut();
+
+
+    }
+
+
+    showLoggedOutUI();
+
+
+}
+
+
+
+/* ========================= */
+/* CHECK AUTH STATUS */
+/* ========================= */
+
+
+function checkAuthStatus() {
+
+
+    const cognitoUser =
+        userPool.getCurrentUser();
+
+
+    if (!cognitoUser) {
+
+
+        showLoggedOutUI();
+
+        return;
+
+    }
+
+
+    cognitoUser.getSession(
+
+        (err, session) => {
+
+
+            if (
+
+                err ||
+
+                !session ||
+
+                !session.isValid()
+
+            ) {
+
+
+                showLoggedOutUI();
+
+                return;
+
+            }
+
+
+            document
+                .getElementById(
+                    "userEmailText"
+                )
+                .textContent =
+                cognitoUser.getUsername();
+
+
+            showLoggedInUI();
+
+
+            loadBudget();
+
+
+            loadTransactions();
+
+
+        }
+
+    );
+
+
+}
+
+
+
+/* ========================= */
+/* LOGGED IN UI */
+/* ========================= */
+
+
+function showLoggedInUI() {
+
+
+    document
+        .getElementById("loginForm")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("userInfo")
+        .classList
+        .remove("hidden");
+
+
+    document
+        .getElementById("appSection")
+        .classList
+        .remove("hidden");
+
+
+    document
+        .getElementById("authMessage")
+        .textContent = "";
+
+
+}
+
+
+
+/* ========================= */
+/* LOGGED OUT UI */
+/* ========================= */
+
+
+function showLoggedOutUI() {
+
+
+    document
+        .getElementById("loginForm")
+        .classList
+        .remove("hidden");
+
+
+    document
+        .getElementById("userInfo")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("appSection")
+        .classList
+        .add("hidden");
+
+
+}
+
+
+
+/* ========================= */
+/* SHOW MESSAGE */
+/* ========================= */
+
+
+function showMessage(
+    message,
+    isError = false
+) {
+
+
+    const messageElement =
+        document
+            .getElementById("message");
+
+
+    messageElement.textContent =
+        message;
+
+
+    messageElement.style.color =
+
+        isError
+
+            ? "red"
+
+            : "green";
+
+
+    setTimeout(
+
+        () => {
+
+
+            messageElement.textContent = "";
+
+
+        },
+
+        3000
+
+    );
+
+
+}
+
+
+
+/* ========================= */
+/* ADD TRANSACTION */
+/* ========================= */
+
+
+async function addTransaction() {
+
+
+    const type =
+        document
+            .getElementById("transactionType")
+            .value;
+
+
+    const amount =
+        document
+            .getElementById("amount")
+            .value;
+
+
+    const category =
+        document
+            .getElementById("category")
+            .value
+            .trim();
+
+
+    const description =
+        document
+            .getElementById("description")
+            .value
+            .trim();
+
+
+    if (
+
+        !amount ||
+
+        Number(amount) <= 0 ||
+
+        !category ||
+
+        !description
+
+    ) {
+
+
+        showMessage(
+
+            "Please fill all fields with valid values.",
+
+            true
+
+        );
+
+
+        return;
+
+    }
+
+
+    const token =
+        await getAuthToken();
+
+
+    if (!token) {
+
+
+        showMessage(
+
+            "Your session has expired. Please sign in again.",
+
+            true
+
+        );
+
+
+        return;
+
+    }
+
+
+    const transaction = {
+
+
+        type: type,
+
+        amount: Number(amount),
+
+        category: category,
+
+        description: description
+
+    };
+
+
+    try {
+
+
+        const response =
+            await fetch(
+
+                API_URL + "/expenses",
+
+                {
+
+
+                    method: "POST",
+
+
+                    headers: {
+
+
+                        "Content-Type":
+                            "application/json",
+
+
+                        "Authorization":
+                            token
+
+                    },
+
+
+                    body:
+                        JSON.stringify(
+                            transaction
+                        )
+
+                }
+
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+
+            throw new Error(
+
+                data.message ||
+
+                "Failed to add transaction"
+
+            );
+
+        }
+
+
+        showMessage(
+
+            "Transaction added successfully."
+
+        );
+
+
+        document
+            .getElementById("amount")
+            .value = "";
+
+
+        document
+            .getElementById("category")
+            .value = "";
+
+
+        document
+            .getElementById("description")
+            .value = "";
+
+
+        await loadTransactions();
+
+
+    }
+
+
+    catch (error) {
+
+
+        console.error(error);
+
+
+        showMessage(
+
+            error.message ||
+
+            "Failed to add transaction.",
+
+            true
+
+        );
+
+
+    }
+
+
+}
+
+
+
+/* ========================= */
+/* LOAD TRANSACTIONS */
+/* ========================= */
+
+
+async function loadTransactions() {
+
+
+    const loading =
+        document
+            .getElementById("loading");
+
+
+    loading.textContent =
+        "Loading transactions...";
+
+
+    const token =
+        await getAuthToken();
+
+
+    if (!token) {
+
+
+        loading.textContent =
+            "Please sign in to load transactions.";
+
+
+        return;
+
+    }
+
+
+    try {
+
+
+        const response =
+            await fetch(
+
+                API_URL + "/expenses",
+
+                {
+
+
+                    method: "GET",
+
+
+                    headers: {
+
+
+                        "Authorization":
+                            token
+
+                    }
+
+                }
+
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+
+            throw new Error(
+
+                data.message ||
+
+                "Failed to load transactions"
+
+            );
+
+        }
+
+
+        if (Array.isArray(data)) {
+
+
+            transactions = data;
+
+
+        }
+
+
+        else if (
+            Array.isArray(
+                data.transactions
+            )
+        ) {
+
+
+            transactions =
+                data.transactions;
+
+
+        }
+
+
+        else if (
+            Array.isArray(
+                data.expenses
+            )
+        ) {
+
+
+            transactions =
+                data.expenses;
+
+
+        }
+
+
+        else {
+
+
+            transactions = [];
+
+
+        }
+
+
+        displayTransactions();
+
+
+        updateFinancialSummary();
+
+
+        loading.textContent = "";
+
+
+    }
+
+
+    catch (error) {
+
+
+        console.error(error);
+
+
+        loading.textContent =
+            "Failed to load transactions.";
+
+
+    }
+
+
+}
+
+
+
+/* ========================= */
+/* DISPLAY TRANSACTIONS */
+/* ========================= */
+
+
+function displayTransactions() {
+
+
+    const list =
+        document.getElementById(
+            "transactionList"
+        );
+
+
+    const search =
+        document
+            .getElementById("search")
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    list.innerHTML = "";
+
+
+    const filteredTransactions =
+        transactions.filter(
+
+            transaction => {
+
+
+                const type =
+                    String(
+
+                        transaction.type ||
+
+                        "Expense"
+
+                    )
+                    .toLowerCase();
+
+
+                const category =
+                    String(
+
+                        transaction.category ||
+
+                        ""
+
+                    )
+                    .toLowerCase();
+
+
+                const description =
+                    String(
+
+                        transaction.description ||
+
+                        ""
+
+                    )
+                    .toLowerCase();
+
+
+                return (
+
+                    type.includes(search) ||
+
+                    category.includes(search) ||
+
+                    description.includes(search)
+
+                );
+
+
+            }
+
+        );
+
+
+    if (
+        filteredTransactions.length === 0
+    ) {
+
+
+        list.innerHTML =
+            "<p>No transactions found.</p>";
+
+
+        return;
+
+    }
+
+
+    filteredTransactions.forEach(
+
+        transaction => {
+
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "transaction";
+
+
+            const transactionId =
+
+                transaction.transactionid ||
+
+                transaction.transactionId ||
+
+                transaction.id ||
+
+                "";
+
+
+            const type =
+                transaction.type ||
+
+                "Expense";
+
+
+            const typeEmoji =
+
+                type.toLowerCase() === "income"
+
+                    ? "💰"
+
+                    : "💸";
+
+
+            div.innerHTML = `
+
+                <p>
+                    <strong>Type:</strong>
+                    ${typeEmoji}
+                    ${escapeHtml(type)}
+                </p>
+
+                <p>
+                    <strong>Amount:</strong>
+                    ₹${Number(
+                        transaction.amount || 0
+                    ).toFixed(2)}
+                </p>
+
+                <p>
+                    <strong>Category:</strong>
+                    ${escapeHtml(
+                        transaction.category || ""
+                    )}
+                </p>
+
+                <p>
+                    <strong>Description:</strong>
+                    ${escapeHtml(
+                        transaction.description || ""
+                    )}
+                </p>
+
+                <div class="transaction-buttons">
+
+                    <button
+                        onclick="updateTransaction('${escapeJs(transactionId)}')"
+                    >
+                        ✏️ Update
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteTransaction('${escapeJs(transactionId)}')"
+                    >
+                        🗑️ Delete
+                    </button>
+
+                </div>
+
+            `;
+
+
+            list.appendChild(div);
+
+
+        }
+
+    );
+
+
+}
+
+
+
+/* ========================= */
+/* UPDATE TRANSACTION */
+/* ========================= */
+
+
+async function updateTransaction(
+    transactionId
+) {
+
+
+    if (!transactionId) {
+
+
+        alert(
+            "Transaction ID is missing."
+        );
+
+
+        return;
+
+    }
+
+
+    const transaction =
+        transactions.find(
+
+            item =>
+
+                String(
+
+                    item.transactionid ||
+
+                    item.transactionId ||
+
+                    item.id ||
+
+                    ""
+
+                ) === String(transactionId)
+
+        );
+
+
+    if (!transaction) {
+
+
+        alert(
+            "Transaction not found."
+        );
+
+
+        return;
+
+    }
+
+
+    const newType =
+        prompt(
+
+            "Enter type (Income or Expense):",
+
+            transaction.type || "Expense"
+
+        );
+
+
+    if (newType === null) return;
+
+
+    if (
+
+        newType.trim().toLowerCase() !== "income" &&
+
+        newType.trim().toLowerCase() !== "expense"
+
+    ) {
+
+
+        alert(
+            "Type must be Income or Expense."
+        );
+
+
+        return;
+
+    }
+
+
+    const newAmount =
+        prompt(
+
+            "Enter new amount:",
+
+            transaction.amount
+
+        );
+
+
+    if (newAmount === null) return;
+
+
+    if (
+
+        !newAmount ||
+
+        Number(newAmount) <= 0
+
+    ) {
+
+
+        alert(
+            "Please enter a valid amount."
+        );
+
+
+        return;
+
+    }
+
+
+    const newCategory =
+        prompt(
+
+            "Enter new category:",
+
+            transaction.category
+
+        );
+
+
+    if (newCategory === null) return;
+
+
+    const newDescription =
+        prompt(
+
+            "Enter new description:",
+
+            transaction.description
+
+        );
+
+
+    if (newDescription === null) return;
+
+
+    const token =
+        await getAuthToken();
+
+
+    if (!token) {
+
+
+        alert(
+            "Your session has expired. Please sign in again."
+        );
+
+
+        return;
+
+    }
+
+
+    const updatedTransaction = {
+
+
+        type:
+            newType.trim(),
+
+
+        amount:
+            Number(newAmount),
+
+
+        category:
+            newCategory.trim(),
+
+
+        description:
+            newDescription.trim()
+
+    };
+
+
+    try {
+
+
+        const response =
+            await fetch(
+
+                `${API_URL}/expenses/${encodeURIComponent(transactionId)}`,
+
+                {
+
+
+                    method: "PUT",
+
+
+                    headers: {
+
+
+                        "Content-Type":
+                            "application/json",
+
+
+                        "Authorization":
+                            token
+
+                    },
+
+
+                    body:
+                        JSON.stringify(
+                            updatedTransaction
+                        )
+
+                }
+
+            );
+
+
+        const data =
+            await response.json()
+                .catch(() => ({}));
+
+
+        if (!response.ok) {
+
+
+            throw new Error(
+
+                data.message ||
+
+                "Failed to update transaction"
+
+            );
+
+        }
+
+
+        alert(
+            "Transaction updated successfully."
+        );
+
+
+        await loadTransactions();
+
+
+    }
+
+
+    catch (error) {
+
+
+        console.error(error);
+
+
+        alert(
+
+            error.message ||
+
+            "Failed to update transaction."
+
+        );
+
+
+    }
+
+
+}
+
+
+
+/* ========================= */
+/* DELETE TRANSACTION */
+/* ========================= */
+
+
+async function deleteTransaction(
+    transactionId
+) {
+
+
+    if (!transactionId) {
+
+
+        alert(
+            "Transaction ID is missing."
+        );
+
+
+        return;
+
+    }
+
+
+    if (
+
+        !confirm(
+
+            "Are you sure you want to delete this transaction?"
+
+        )
+
+    ) {
+
+
+        return;
+
+    }
+
+
+    const token =
+        await getAuthToken();
+
+
+    if (!token) {
+
+
+        alert(
+            "Your session has expired. Please sign in again."
+        );
+
+
+        return;
+
+    }
+
+
+    try {
+
+
+        const response =
+            await fetch(
+
+                `${API_URL}/expenses/${encodeURIComponent(transactionId)}`,
+
+                {
+
+
+                    method: "DELETE",
+
+
+                    headers: {
+
+
+                        "Authorization":
+                            token
+
+                    }
+
+                }
+
+            );
+
+
+        const data =
+            await response.json()
+                .catch(() => ({}));
+
+
+        if (!response.ok) {
+
+
+            throw new Error(
+
+                data.message ||
+
+                "Failed to delete transaction"
+
+            );
+
+        }
+
+
+        alert(
+            "Transaction deleted successfully."
+        );
+
+
+        await loadTransactions();
+
+
+    }
+
+
+    catch (error) {
+
+
+        console.error(error);
+
+
+        alert(
+
+            error.message ||
+
+            "Failed to delete transaction."
+
+        );
+
+
+    }
+
+
+}
+
+
+
+/* ========================= */
+/* FINANCIAL SUMMARY */
+/* ========================= */
+
+
+function updateFinancialSummary() {
+
+
+    let totalIncome = 0;
+
+
+    let totalExpenses = 0;
+
+
+    transactions.forEach(
+
+        transaction => {
+
+
+            const amount =
+                Number(
+                    transaction.amount || 0
+                );
+
+
+            const type =
+                String(
+
+                    transaction.type ||
+
+                    "Expense"
+
+                )
+                .toLowerCase();
+
+
+            if (type === "income") {
+
+
+                totalIncome += amount;
+
+
+            }
+
+
+            else {
+
+
+                totalExpenses += amount;
+
+
+            }
+
+
+        }
+
+    );
+
+
+    const moneySaved =
+        totalIncome - totalExpenses;
+
+
+    let savingsRate = 0;
+
+
+    if (totalIncome > 0) {
+
+
+        savingsRate =
+
+            (moneySaved / totalIncome)
+
+            * 100;
+
+
+    }
+
+
+    document
+        .getElementById("totalIncome")
+        .textContent =
+        totalIncome.toFixed(2);
+
+
+    document
+        .getElementById("totalExpenses")
+        .textContent =
+        totalExpenses.toFixed(2);
+
+
+    document
+        .getElementById("moneySaved")
+        .textContent =
+        moneySaved.toFixed(2);
+
+
+    document
+        .getElementById("savingsRate")
+        .textContent =
+        savingsRate.toFixed(2);
+
+
+    updateBudget(
+        totalExpenses
+    );
+
+
+    updateInsights(
+
+        totalIncome,
+
+        totalExpenses,
+
+        moneySaved,
+
+        savingsRate
+
+    );
+
+
+}
+
+
+
+/* ========================= */
+/* SAVE MONTHLY BUDGET */
+/* ========================= */
+
+
+function saveBudget() {
+
+
+    const budget =
+        Number(
+
+            document
+                .getElementById(
+                    "monthlyBudgetInput"
+                )
+                .value
+
+        );
+
+
+    if (
+
+        !budget ||
+
+        budget <= 0
+
+    ) {
+
+
+        alert(
+            "Please enter a valid budget."
+        );
+
+
+        return;
+
+    }
+
+
+    localStorage.setItem(
+
+        "monthlyBudget",
+
+        budget
+
+    );
+
+
+    alert(
+        "Monthly budget saved successfully."
+    );
+
+
+    document
+        .getElementById(
+            "monthlyBudgetInput"
+        )
+        .value = "";
+
+
+    updateFinancialSummary();
+
+
+}
+
+
+
+/* ========================= */
+/* LOAD BUDGET */
+/* ========================= */
+
+
+function loadBudget() {
+
+
+    const budget =
+
+        Number(
+
+            localStorage.getItem(
+                "monthlyBudget"
+            )
+
+        ) || 0;
+
+
+    document
+        .getElementById(
+            "monthlyBudget"
+        )
+        .textContent =
+        budget.toFixed(2);
+
+
+}
+
+
+
+/* ========================= */
+/* UPDATE BUDGET */
+/* ========================= */
+
+
+function updateBudget(
+    totalExpenses
+) {
+
+
+    const budget =
+
+        Number(
+
+            localStorage.getItem(
+                "monthlyBudget"
+            )
+
+        ) || 0;
+
+
+    document
+        .getElementById(
+            "monthlyBudget"
+        )
+        .textContent =
+        budget.toFixed(2);
+
+
+    document
+        .getElementById(
+            "budgetUsed"
+        )
+        .textContent =
+        totalExpenses.toFixed(2);
+
+
+    const warningElement =
+        document
+            .getElementById(
+                "budgetWarning"
+            );
+
+
+    if (budget <= 0) {
+
+
+        document
+            .getElementById(
+                "remainingBudget"
+            )
+            .textContent =
+            "0.00";
+
+
+        document
+            .getElementById(
+                "budgetPercentage"
+            )
+            .textContent =
+            "0.00";
+
+
+        warningElement.textContent =
+
+            "Set a monthly budget to track your spending.";
+
+
+        warningElement.className =
+
+            "budget-warning warning-budget";
+
+
+        return;
+
+    }
+
+
+    const remaining =
+        budget - totalExpenses;
+
+
+    const percentage =
+        (totalExpenses / budget)
+        * 100;
+
+
+    document
+        .getElementById(
+            "remainingBudget"
+        )
+        .textContent =
+        remaining.toFixed(2);
+
+
+    document
+        .getElementById(
+            "budgetPercentage"
+        )
+        .textContent =
+        percentage.toFixed(2);
+
+
+    if (
+        totalExpenses > budget
+    ) {
+
+
+        warningElement.textContent =
+
+            "🚨 Budget exceeded! You spent more than your monthly budget.";
+
+
+        warningElement.className =
+
+            "budget-warning danger-budget";
+
+
+    }
+
+
+    else if (
+        percentage >= 80
+    ) {
+
+
+        warningElement.textContent =
+
+            "⚠️ Warning! You have used more than 80% of your budget.";
+
+
+        warningElement.className =
+
+            "budget-warning warning-budget";
+
+
+    }
+
+
+    else {
+
+
+        warningElement.textContent =
+
+            "✅ Great! Your spending is within your monthly budget.";
+
+
+        warningElement.className =
+
+            "budget-warning safe-budget";
+
+
+    }
+
+
+}
+
+
+
+/* ========================= */
+/* SMART FINANCIAL INSIGHTS */
+/* ========================= */
+
+
+function updateInsights(
+
+    totalIncome,
+
+    totalExpenses,
+
+    moneySaved,
+
+    savingsRate
+
+) {
+
+
+    const savingInsight =
+        document
+            .getElementById(
+                "savingInsight"
+            );
+
+
+    const spendingInsight =
+        document
+            .getElementById(
+                "spendingInsight"
+            );
+
+
+    const savingHabitInsight =
+        document
+            .getElementById(
+                "savingHabitInsight"
+            );
+
+
+    const highestCategoryInsight =
+        document
+            .getElementById(
+                "highestCategoryInsight"
+            );
+
+
+    /* SAVING INSIGHT */
+
+
+    if (moneySaved > 0) {
+
+
+        savingInsight.innerHTML =
+
+            `💰 Great! You saved <strong>₹${moneySaved.toFixed(2)}</strong>.`;
+
+
+    }
+
+
+    else if (moneySaved < 0) {
+
+
+        savingInsight.innerHTML =
+
+            "⚠️ Warning! You spent more than your income.";
+
+
+    }
+
+
+    else {
+
+
+        savingInsight.innerHTML =
+
+            "💰 Start adding income and expenses to see your savings.";
+
+
+    }
+
+
+    /* SPENDING PERCENTAGE */
+
+
+    if (totalIncome > 0) {
+
+
+        const spendingPercentage =
+
+            (totalExpenses / totalIncome)
+
+            * 100;
+
+
+        spendingInsight.innerHTML =
+
+            `📊 You spent <strong>${spendingPercentage.toFixed(2)}%</strong> of your income.`;
+
+
+    }
+
+
+    else {
+
+
+        spendingInsight.innerHTML =
+
+            "📊 Add income to calculate your spending percentage.";
+
+
+    }
+
+
+    /* SAVING HABIT */
+
+
+    if (savingsRate >= 30) {
+
+
+        savingHabitInsight.innerHTML =
+
+            "🏆 Excellent! You are maintaining a good savings habit.";
+
+
+    }
+
+
+    else if (savingsRate >= 10) {
+
+
+        savingHabitInsight.innerHTML =
+
+            "👍 Good! Try to increase your savings gradually.";
+
+
+    }
+
+
+    else {
+
+
+        savingHabitInsight.innerHTML =
+
+            "💡 Try reducing unnecessary expenses to improve savings.";
+
+
+    }
+
+
+    /* HIGHEST EXPENSE CATEGORY */
+
+
+    const categoryTotals = {};
+
+
+    transactions.forEach(
+
+        transaction => {
+
+
+            const type =
+                String(
+
+                    transaction.type ||
+
+                    "Expense"
+
+                )
+                .toLowerCase();
+
+
+            if (type !== "expense") {
+
+
+                return;
+
+            }
+
+
+            const category =
+                transaction.category ||
+
+                "Other";
+
+
+            const amount =
+                Number(
+                    transaction.amount || 0
+                );
+
+
+            if (!categoryTotals[category]) {
+
+
+                categoryTotals[category] = 0;
+
+
+            }
+
+
+            categoryTotals[category] += amount;
+
+
+        }
+
+    );
+
+
+    let highestCategory = null;
+
+
+    let highestAmount = 0;
+
+
+    Object.keys(categoryTotals)
+
+        .forEach(
+
+            category => {
+
+
+                if (
+
+                    categoryTotals[category]
+
+                    > highestAmount
+
+                ) {
+
+
+                    highestAmount =
+                        categoryTotals[category];
+
+
+                    highestCategory =
+                        category;
+
+
+                }
+
+
+            }
+
+        );
+
+
+    if (highestCategory) {
+
+
+        highestCategoryInsight.innerHTML =
+
+            `📉 Your highest spending category is <strong>${escapeHtml(highestCategory)}</strong> (₹${highestAmount.toFixed(2)}).`;
+
+
+    }
+
+
+    else {
+
+
+        highestCategoryInsight.innerHTML =
+
+            "📉 Add expenses to identify your highest spending category.";
+
+
+    }
+
+
+}
+
+
+
+/* ========================= */
+/* DOWNLOAD FINANCIAL REPORT */
+/* ========================= */
+
+
+function downloadFinancialReport() {
+
+
+    let totalIncome = 0;
+
+
+    let totalExpenses = 0;
+
+
+    transactions.forEach(
+
+        transaction => {
+
+
+            const amount =
+                Number(
+                    transaction.amount || 0
+                );
+
+
+            const type =
+                String(
+
+                    transaction.type ||
+
+                    "Expense"
+
+                )
+                .toLowerCase();
+
+
+            if (type === "income") {
+
+
+                totalIncome += amount;
+
+
+            }
+
+
+            else {
+
+
+                totalExpenses += amount;
+
+
+            }
+
+
+        }
+
+    );
+
+
+    const moneySaved =
+        totalIncome - totalExpenses;
+
+
+    let savingsRate = 0;
+
+
+    if (totalIncome > 0) {
+
+
+        savingsRate =
+
+            (moneySaved / totalIncome)
+
+            * 100;
+
+
+    }
+
+
+    const budget =
+
+        Number(
+
+            localStorage.getItem(
+                "monthlyBudget"
+            )
+
+        ) || 0;
+
+
+    const remainingBudget =
+        budget - totalExpenses;
+
+
+    const userEmail =
+        document
+            .getElementById(
+                "userEmailText"
+            )
+            .textContent;
+
+
+    let csvContent = "";
+
+
+    csvContent +=
+        "SMART PERSONAL FINANCE TRACKER REPORT\n\n";
+
+
+    csvContent +=
+        "User," +
+        userEmail +
+        "\n";
+
+
+    csvContent +=
+        "Report Date," +
+        new Date().toLocaleString() +
+        "\n\n";
+
+
+    /* FINANCIAL SUMMARY */
+
+
+    csvContent +=
+        "FINANCIAL SUMMARY\n";
+
+
+    csvContent +=
+        "Total Income," +
+        totalIncome.toFixed(2) +
+        "\n";
+
+
+    csvContent +=
+        "Total Expenses," +
+        totalExpenses.toFixed(2) +
+        "\n";
+
+
+    csvContent +=
+        "Money Saved," +
+        moneySaved.toFixed(2) +
+        "\n";
+
+
+    csvContent +=
+        "Savings Rate," +
+        savingsRate.toFixed(2) +
+        "%\n\n";
+
+
+    /* BUDGET */
+
+
+    csvContent +=
+        "MONTHLY BUDGET\n";
+
+
+    csvContent +=
+        "Monthly Budget," +
+        budget.toFixed(2) +
+        "\n";
+
+
+    csvContent +=
+        "Budget Used," +
+        totalExpenses.toFixed(2) +
+        "\n";
+
+
+    csvContent +=
+        "Remaining Budget," +
+        remainingBudget.toFixed(2) +
+        "\n\n";
+
+
+    /* TRANSACTIONS */
+
+
+    csvContent +=
+        "TRANSACTION HISTORY\n";
+
+
+    csvContent +=
+        "Type,Amount,Category,Description\n";
+
+
+    transactions.forEach(
+
+        transaction => {
+
+
+            const type =
+                transaction.type ||
+                "Expense";
+
+
+            const amount =
+                Number(
+                    transaction.amount || 0
+                )
+                .toFixed(2);
+
+
+            const category =
+                String(
+                    transaction.category || ""
+                )
+                .replace(
+                    /"/g,
+                    '""'
+                );
+
+
+            const description =
+                String(
+                    transaction.description || ""
+                )
+                .replace(
+                    /"/g,
+                    '""'
+                );
+
+
+            csvContent +=
+
+                `"${type}",` +
+
+                `"${amount}",` +
+
+                `"${category}",` +
+
+                `"${description}"\n`;
+
+
+        }
+
+    );
+
+
+    /* CREATE DOWNLOAD FILE */
+
+
+    const blob =
+        new Blob(
+
+            [csvContent],
+
+            {
+
+                type:
+                    "text/csv;charset=utf-8;"
+
+            }
+
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href = url;
+
+
+    const date =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+
+    link.download =
+        `Financial_Report_${date}.csv`;
+
+
+    document
+        .body
+        .appendChild(link);
+
+
+    link.click();
+
+
+    document
+        .body
+        .removeChild(link);
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+
+    showMessage(
+
+        "Financial report downloaded successfully."
+
+    );
+
+
+}
+
+
+
+/* ========================= */
+/* ESCAPE HTML */
+/* ========================= */
+
+
+function escapeHtml(value) {
+
+
+    return String(value)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+
+}
+
+
+
+/* ========================= */
+/* ESCAPE JAVASCRIPT */
+/* ========================= */
+
+
+function escapeJs(value) {
+
+
+    return String(value)
+
+        .replace(/\\/g, "\\\\")
+
+        .replace(/'/g, "\\'");
+
+
+}
+
+
+
+/* ========================= */
+/* PAGE LOAD */
+/* ========================= */
+
+
+window.addEventListener(
+
+    "DOMContentLoaded",
+
+    function() {
+
+
+        /* Load saved theme */
+
+        loadDarkMode();
+
+
+        /* Check Cognito login */
+
+        checkAuthStatus();
+
+
+    }
+
+);
+
+
+</script>
+
+
+</body>
+
+</html>
